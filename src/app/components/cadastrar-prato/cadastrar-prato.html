@@ -1,0 +1,94 @@
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Novo Prato</mat-card-title>
+      <mat-card-subtitle>Preencha os dados do cardápio</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="responsive-form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Nome do Prato</mat-label>
+            <input matInput [(ngModel)]="prato.nome" name="nome" placeholder="Ex: Lasanha" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Categoria</mat-label>
+            <mat-select [(ngModel)]="prato.categoria" name="categoria">
+              <mat-option *ngFor="let cat of categorias()" [value]="cat.nome">
+                {{ cat.nome }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="col-small">
+            <mat-label>Preço (R$)</mat-label>
+            <input matInput type="number" [(ngModel)]="prato.preco" name="preco">
+            <span matPrefix>R$&nbsp;</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-large">
+            <mat-label>Descrição</mat-label>
+            <textarea matInput [(ngModel)]="prato.descricao" name="descricao" rows="1"></textarea>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="limparForm()">LIMPAR</button>
+      <button mat-raised-button color="primary" (click)="salvar()" [disabled]="!prato.nome">
+        <mat-icon>save</mat-icon> SALVAR PRATO
+      </button>
+    </mat-card-actions>
+  </mat-card>
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Pratos Cadastrados</mat-card-title>
+    </mat-card-header>
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filtrar pratos...</mat-label>
+      <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ex. Lasanha" #input>
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="nome">
+        <mat-header-cell *matHeaderCellDef> Nome </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.nome}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="categoria">
+        <mat-header-cell *matHeaderCellDef> Categoria </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.categoria}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="preco">
+        <mat-header-cell *matHeaderCellDef> Preço </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.preco | currency:'BRL'}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <mat-header-cell *matHeaderCellDef> Ações </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="editar(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deletar(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <div *ngIf="dataSource.filteredData.length === 0" class="empty-list">
+      Nenhum prato encontrado.
+    </div>
+  </mat-card>
+</div>

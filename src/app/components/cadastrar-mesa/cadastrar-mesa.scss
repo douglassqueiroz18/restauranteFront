@@ -1,0 +1,119 @@
+/* src/app/pages/cadastrar-mesa/cadastrar-mesa.scss */
+$primary-color: #3f51b5;
+$bg-color: #f5f7fa;
+
+.container {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column; // Empilha os cards (Form em cima, Lista embaixo)
+  align-items: center;
+  gap: 30px;
+  background-color: $bg-color;
+  min-height: 100vh;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 900px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+  overflow: hidden;
+
+  mat-card-header {
+    background-color: white;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+  }
+}
+
+.responsive-form {
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+
+  .row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+
+    .col { flex: 1; }
+  }
+}
+
+/* Campo de Filtro */
+.filter-field {
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Estilização da Tabela */
+mat-table {
+  width: 100%;
+  box-shadow: none !important;
+
+  mat-header-row {
+    background-color: #fafafa;
+  }
+
+  mat-row:hover {
+    background-color: #fcfcfc;
+    transition: background 0.2s;
+  }
+
+  /* Coluna de Número da Mesa */
+  .mat-column-numero {
+    font-weight: 600;
+    color: $primary-color;
+  }
+}
+
+/* Badges de Status das Mesas */
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.disponivel {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+  }
+
+  &.ocupada {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+  }
+
+  &.reservada {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border: 1px solid #ffe0b2;
+  }
+}
+
+.empty-list {
+  padding: 40px;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container { padding: 15px; }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-card {
+    max-width: 100%;
+  }
+}

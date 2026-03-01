@@ -1,0 +1,96 @@
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ mesa.id ? 'Editar Mesa' : 'Nova Mesa' }}</mat-card-title>
+      <mat-card-subtitle>Configure as mesas do restaurante</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="responsive-form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Número da Mesa</mat-label>
+            <input matInput type="number" [(ngModel)]="mesa.numero" name="numero" placeholder="Ex: 05" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="mesa.status" name="status">
+              <mat-option value="DISPONIVEL">Disponível</mat-option>
+              <mat-option value="OCUPADA">Ocupada</mat-option>
+              <mat-option value="RESERVADA">Reservada</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Capacidade (Pessoas)</mat-label>
+            <input matInput type="number" [(ngModel)]="mesa.capacidade" name="capacidade" placeholder="Ex: 4">
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="limparForm()">LIMPAR</button>
+      <button mat-raised-button color="primary" (click)="salvar()" [disabled]="!mesa.numero">
+        <mat-icon>{{ mesa.id ? 'update' : 'save' }}</mat-icon>
+        {{ mesa.id ? 'ATUALIZAR MESA' : 'SALVAR MESA' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Mesas Cadastradas</mat-card-title>
+    </mat-card-header>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filtrar mesas...</mat-label>
+      <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ex. Mesa 10" #input>
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="numero">
+        <mat-header-cell *matHeaderCellDef> Número </mat-header-cell>
+        <mat-cell *matCellDef="let element"> Mesa {{element.numero}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="capacidade">
+        <mat-header-cell *matHeaderCellDef> Capacidade </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.capacidade}} pessoas </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="status-badge" [ngClass]="element.status.toLowerCase()">
+            {{element.status}}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <mat-header-cell *matHeaderCellDef> Ações </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="editar(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deletar(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <div *ngIf="mesas().length === 0" class="empty-list">
+      Nenhuma mesa encontrada.
+    </div>
+  </mat-card>
+</div>

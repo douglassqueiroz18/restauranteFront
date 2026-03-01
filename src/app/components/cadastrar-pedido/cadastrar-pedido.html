@@ -1,0 +1,159 @@
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ pedido.id ? 'Editar Pedido' : 'Novo Pedido' }}</mat-card-title>
+      <mat-card-subtitle>Gerencie as comandas das mesas</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="responsive-form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Selecione a Mesa</mat-label>
+            <mat-select
+              [(ngModel)]="pedido.mesa"
+              name="mesa"
+              [compareWith]="compararObjetos"
+              required
+            >
+              <mat-option *ngFor="let m of mesasDisponiveis()" [value]="m">
+                Mesa {{ m.numero }} ({{ m.capacidade }} pessoas)
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Status do Pedido</mat-label>
+            <mat-select [(ngModel)]="pedido.status" name="status" [compareWith]="compararObjetos">
+              <mat-option value="PENDENTE">Pendente</mat-option>
+              <mat-option value="PREPARANDO">Preparando</mat-option>
+              <mat-option value="PRONTO">Pronto</mat-option>
+              <mat-option value="ENTREGUE">Entregue</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <hr class="divider" />
+
+        <h3 class="section-title">Adicionar Itens</h3>
+        <div class="row items-row">
+          <mat-form-field appearance="outline" class="col-large">
+            <mat-label>Item</mat-label>
+            <mat-select
+              [(ngModel)]="pratoSelecionado"
+              name="pratoBusca"
+              [compareWith]="compararObjetos"
+            >
+              <mat-option *ngFor="let p of cardapio()" [value]="p">
+                {{ p.nome }} - {{ p.preco | currency: 'BRL' }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-small">
+            <mat-label>Qtd</mat-label>
+            <input matInput type="number" [(ngModel)]="quantidadeInformada" name="qtd" />
+          </mat-form-field>
+
+          <button
+            mat-mini-fab
+            [color]="indexItemEdicao !== null ? 'primary' : 'accent'"
+            type="button"
+            (click)="adicionarItem()"
+            [disabled]="!pratoSelecionado"
+          >
+            <mat-icon>{{ indexItemEdicao !== null ? 'check' : 'add' }}</mat-icon>
+          </button>
+        </div>
+
+        <div class="cart-preview" *ngIf="pedido.itens.length > 0">
+          <table class="item-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qtd</th>
+                <th>Subtotal</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of pedido.itens; let i = index">
+                <td>{{ item.prato.nome }}</td>
+                <td>{{ item.quantidade }}x</td>
+                <td>{{ item.subtotal | currency:'BRL' }}</td>
+                <td>
+                  <button mat-icon-button color="primary" type="button" (click)="editarItemNoCarrinho(i)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" type="button" (click)="removerItem(i)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="total-display">
+            Total do Pedido: <strong>{{ pedido.total | currency:'BRL' }}</strong>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="limparForm()">LIMPAR</button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="salvar()"
+        [disabled]="pedido.itens.length === 0"
+      >
+        <mat-icon>check</mat-icon> FINALIZAR PEDIDO
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Histórico de Pedidos</mat-card-title>
+    </mat-card-header>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="mesa">
+        <mat-header-cell *matHeaderCellDef> Mesa </mat-header-cell>
+        <mat-cell *matCellDef="let element"> Mesa {{ element.mesa.numero }} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="itens">
+        <mat-header-cell *matHeaderCellDef> Itens </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.itens.length }} itens </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="total">
+        <mat-header-cell *matHeaderCellDef> Total </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{ element.total | currency: 'BRL' }} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <span class="status-badge" [ngClass]="element.status.toLowerCase()">{{
+            element.status
+          }}</span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <mat-header-cell *matHeaderCellDef> Ações </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="editar(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deletar(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    </mat-table>
+  </mat-card>
+</div>

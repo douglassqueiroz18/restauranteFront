@@ -1,0 +1,78 @@
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ categoria.id ? 'Editar Categoria' : 'Nova Categoria' }}</mat-card-title>
+      <mat-card-subtitle>Gerencie as categorias do cardápio</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form class="responsive-form">
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Nome da Categoria</mat-label>
+            <input matInput [(ngModel)]="categoria.nome" name="nome" placeholder="Ex: Bebidas, Carnes, Sobremesas" required>
+          </mat-form-field>
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" class="col">
+            <mat-label>Descrição (Opcional)</mat-label>
+            <textarea matInput [(ngModel)]="categoria.descricao" name="descricao" placeholder="Breve descrição da categoria"></textarea>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="limparForm()">LIMPAR</button>
+      <button mat-raised-button color="primary" (click)="salvar()" [disabled]="!categoria.nome">
+        <mat-icon>{{ categoria.id ? 'update' : 'save' }}</mat-icon>
+        {{ categoria.id ? 'ATUALIZAR CATEGORIA' : 'SALVAR CATEGORIA' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Categorias Cadastradas</mat-card-title>
+    </mat-card-header>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filtrar categorias...</mat-label>
+      <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ex. Sobremesas" #input>
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="nome">
+        <mat-header-cell *matHeaderCellDef> Nome </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.nome}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="descricao">
+        <mat-header-cell *matHeaderCellDef> Descrição </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.descricao || '---'}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <mat-header-cell *matHeaderCellDef> Ações </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="editar(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deletar(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <div *ngIf="categorias().length === 0" class="empty-list">
+      Nenhuma categoria encontrada.
+    </div>
+  </mat-card>
+</div>
