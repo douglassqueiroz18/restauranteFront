@@ -1,0 +1,81 @@
+<div class="kanban-wrapper">
+
+  <div class="kanban-column">
+    <h2 class="column-title pendente">Novos Pedidos</h2>
+    <div class="card-list">
+      @for (pedido of pedidos(); track pedido.id) {
+        @if (pedido.status === 'pendente') {
+          <mat-card class="order-card">
+            <mat-card-header>
+              <mat-card-title>{{ pedido.mesa }}</mat-card-title>
+              <mat-card-subtitle>Pedido #{{ pedido.id }} - {{ pedido.horario | date:'HH:mm' }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-chip-listbox>
+                @for (item of pedido.itens; track item) {
+                  <mat-chip>{{ item }}</mat-chip>
+                }
+              </mat-chip-listbox>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-flat-button color="primary" (click)="moverPedido(pedido.id, 'preparo')">
+                <mat-icon>play_arrow</mat-icon> Iniciar
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <h2 class="column-title preparo">Na Panela</h2>
+    <div class="card-list">
+      @for (pedido of pedidos(); track pedido.id) {
+        @if (pedido.status === 'preparo') {
+          <mat-card class="order-card preparo-border">
+            <mat-card-header>
+              <mat-card-title>{{ pedido.mesa }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul>
+                @for (item of pedido.itens; track item) {
+                  <li><strong>{{ item }}</strong></li>
+                }
+              </ul>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-flat-button color="accent" (click)="moverPedido(pedido.id, 'pronto')">
+                <mat-icon>check</mat-icon> Pronto
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <h2 class="column-title pronto">Pronto / Saída</h2>
+    <div class="card-list">
+      @for (pedido of pedidos(); track pedido.id) {
+        @if (pedido.status === 'pronto') {
+          <mat-card class="order-card pronto-bg">
+            <mat-card-header>
+              <mat-card-title>{{ pedido.mesa }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Aguardando Garçom</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-icon-button (click)="moverPedido(pedido.id, 'preparo')">
+                <mat-icon>replay</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      }
+    </div>
+  </div>
+
+</div>

@@ -8,6 +8,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/home/home').then(m => m.Home)
   },
   {
+    path: 'home',
+    loadComponent: () => import('./components/home/home').then(m => m.Home)
+  },
+  {
     path: 'cadastrar-prato',
     loadComponent: () => import('./components/cadastrar-prato/cadastrar-prato').then(m => m.CadastrarPrato)
   },
@@ -26,5 +30,9 @@ export const routes: Routes = [
   {
     path: 'cadastrar-categoria',
     loadComponent: () => import('./components/cadastrar-categoria/cadastrar-categoria').then(m => m.CadastrarCategoria)
+  },
+  {
+    path: 'tela-cozinha',
+    loadComponent: () => import('./components/tela-cozinha/tela-cozinha').then(m => m.TelaCozinha)
   }
 ];

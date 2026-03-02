@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Confirmar Pedido</h2>
+
+<mat-dialog-content>
+  <mat-list>
+    @for (item of itensLocais; track $index) {
+      <mat-list-item>
+        <mat-icon matListItemIcon>restaurant</mat-icon>
+        <div matListItemTitle>{{ item.nome }}</div>
+        <div matListItemLine>{{ item.preco | currency:'BRL' }}</div>
+
+        <button mat-icon-button color="warn" (click)="removerItem($index)" matListItemMeta>
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    }
+  </mat-list>
+
+  <div class="total-container">
+    <span>Total do Pedido:</span>
+    <strong>{{ totalLocal | currency:'BRL' }}</strong>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Voltar</button>
+  <button mat-raised-button color="accent" (click)="confirmar()" [disabled]="itensLocais.length === 0">
+    Enviar para Cozinha
+  </button>
+</mat-dialog-actions>

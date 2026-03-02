@@ -1,1 +1,58 @@
-<p>area-cliente works!</p>
+<div class="layout-container">
+
+  <aside class="sidebar-container">
+    <mat-card class="sidebar-card">
+      <mat-card-header>
+        <mat-card-title>Categorias</mat-card-title>
+      </mat-card-header>
+
+      <mat-selection-list [multiple]="false" (selectionChange)="onCategoriaChange($event)">
+
+
+        @for (cat of categorias(); track cat.id) {
+          <mat-list-option [value]="cat.nome">
+            <mat-icon matListItemIcon>label</mat-icon>
+            {{ cat.nome }}
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </mat-card>
+  </aside>
+
+  <main class="content-container">
+    <mat-card class="table-card"> <mat-card-header>
+        <mat-card-title>Pratos Disponíveis</mat-card-title>
+      </mat-card-header>
+
+      <mat-selection-list>
+        @for (prato of pratos(); track prato.id) {
+          <mat-list-option
+            [value]="prato"
+            [selected]="isPratoSelecionado(prato)"
+            (click)="togglePratoManual(prato)">
+
+            <mat-icon matListItemIcon>restaurant</mat-icon>
+            <div matListItemTitle>{{ prato.nome }}</div>
+            <div matListItemLine>{{ prato.preco | currency:'BRL' }}</div>
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    </mat-card>
+  </main>
+
+  <div class="footer-pedido" [class.show]="itensPedido().length > 0">
+    <div class="footer-content">
+      <div class="info-pedido">
+        <mat-icon>shopping_basket</mat-icon>
+        <span><strong>Selecionados:</strong> {{ nomesItens() }}</span>
+      </div>
+      <div class="total-pedido">
+        <span>Total: <strong>{{ totalPedido() | currency:'BRL' }}</strong></span>
+        <button mat-raised-button color="accent" (click)="finalizarPedido()">
+          Confirmar Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

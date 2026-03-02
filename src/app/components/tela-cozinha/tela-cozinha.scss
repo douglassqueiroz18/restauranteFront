@@ -1,0 +1,59 @@
+.kanban-wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f4f7f6;
+  min-height: 100vh;
+  overflow-x: auto;
+}
+
+.kanban-column {
+  flex: 1;
+  min-width: 320px;
+  background-color: #ebedef;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .column-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    border-bottom: 3px solid;
+
+    &.pendente { color: #f44336; border-color: #f44336; }
+    &.preparo { color: #ff9800; border-color: #ff9800; }
+    &.pronto { color: #4caf50; border-color: #4caf50; }
+  }
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+  mat-card-header { margin-bottom: 10px; }
+
+  mat-chip { --mdc-chip-label-text-size: 12px; }
+
+  &.preparo-border {
+    border-left: 8px solid #ff9800;
+  }
+
+  &.pronto-bg {
+    background-color: #e8f5e9;
+  }
+}
+
+ul {
+  padding-left: 20px;
+  margin: 10px 0;
+}

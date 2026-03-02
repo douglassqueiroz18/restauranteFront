@@ -57,6 +57,13 @@ export class Home {
       rota: '/area-cliente',
       icon: 'person',
       cor: '#9c27b0'
+    },
+    {
+      titulo: 'Tela da Cozinha',
+      subtitulo: 'Acompanhar pedidos',
+      rota: '/tela-cozinha',
+      icon: 'kitchen',
+      cor: '#009688'
     }
   ];
 

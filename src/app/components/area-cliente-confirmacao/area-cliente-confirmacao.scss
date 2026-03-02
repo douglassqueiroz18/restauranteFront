@@ -1,0 +1,16 @@
+.total-container {
+  margin-top: 20px;
+  padding: 15px;
+  border-top: 2px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+
+  strong {
+    color: #2e7d32;
+  }
+}
+
+mat-list-item {
+  border-bottom: 1px solid #fafafa;
+}
