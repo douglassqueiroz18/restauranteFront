@@ -4,20 +4,57 @@
   margin: 0 auto;
 
   .welcome-header {
-    text-align: center;
-    margin-bottom: 3rem;
+  text-align: center;
+  margin-bottom: 4rem;
+  padding: 0 1rem;
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem); // Fonte fluida: se adapta ao tamanho da tela
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1.2; // Corrige o texto encavalado do print
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+
+    // Efeito de degradê no texto (opcional, mas fica bem moderno)
+    background: linear-gradient(135deg, #222 0%, #555 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px; // Dá um ar mais elegante ao subtítulo
+    font-weight: 400;
+
+    // Pequena linha decorativa abaixo do subtítulo
+    &::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #ff5722; // Use a cor principal do seu sistema
+      margin: 15px auto 0;
+      border-radius: 2px;
+    }
+  }
+}
+@media (max-width: 600px) {
+  .welcome-header {
+    margin-bottom: 2rem;
 
     h1 {
-      font-size: 2.5rem;
-      color: #333;
-      margin-bottom: 0.5rem;
+      font-weight: 700; // Um pouco menos de peso ajuda na leitura em telas pequenas
+      letter-spacing: -0.5px;
     }
 
     p {
-      color: #666;
-      font-size: 1.1rem;
+      padding: 0 10%; // Dá mais destaque ao subtítulo no mobile
     }
   }
+}
 }
 
 .grid-menu {
@@ -80,7 +117,4 @@
     padding: 1rem;
   }
 
-  .welcome-header h1 {
-    font-size: 1.8rem;
-  }
 }

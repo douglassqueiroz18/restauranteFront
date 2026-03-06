@@ -1,0 +1,24 @@
+<div class="dialog-container" [ngClass]="data.tipo">
+  <div mat-dialog-title class="header">
+    <mat-icon class="status-icon">
+      {{ data.tipo === 'sucesso' ? 'check_circle' : data.tipo === 'erro' ? 'error' : 'help' }}
+    </mat-icon>
+    <span>{{ data.titulo }}</span>
+  </div>
+
+  <mat-dialog-content>
+    <p>{{ data.mensagem }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    @if (data.tipo === 'confirmacao') {
+      <button mat-button (click)="fechar(false)">{{ cancelarLabel }}</button>
+    }
+
+    <button mat-raised-button
+            [color]="data.tipo === 'erro' ? 'warn' : 'primary'"
+            (click)="fechar(true)">
+      {{ confirmarLabel }}
+    </button>
+  </mat-dialog-actions>
+</div>
