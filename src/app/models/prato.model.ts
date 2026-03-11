@@ -1,3 +1,5 @@
+import { Estoque } from "./estoque.model";
+
 export interface Prato {
   id?: number;
   nome: string;
@@ -5,4 +7,11 @@ export interface Prato {
   preco: number;
   categoria: string;
   ativo: boolean;
+  ingredientes?: PratoInsumo[];
+}
+export interface PratoInsumo {
+  id?: number;
+  insumo: Partial<Estoque>;
+  quantidadeNecessaria: number;
+  unidadeMedida: string;
 }

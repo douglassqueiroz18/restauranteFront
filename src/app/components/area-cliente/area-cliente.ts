@@ -65,7 +65,6 @@ export class AreaCliente implements OnInit  {
     }
   onCategoriaChange(event: any) {
     const selecionado = event.options[0]?.value;
-    console.log('Filtrando por:', selecionado);
 
     if (selecionado === null) {
       this.carregarTodosPratos();
@@ -83,7 +82,6 @@ export class AreaCliente implements OnInit  {
     this.pratoService.listarPorCategoria(nomeCategoria).subscribe(dados => {
       this.pratos.set(dados);
       this.dataSource.data = dados;
-      console.log(`Filtro aplicado: ${nomeCategoria}`, dados);
     });
   }
   carregarTodosPratos() {

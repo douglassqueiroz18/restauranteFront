@@ -34,5 +34,9 @@ export const routes: Routes = [
   {
     path: 'tela-cozinha',
     loadComponent: () => import('./components/tela-cozinha/tela-cozinha').then(m => m.TelaCozinha)
+  },
+  {
+    path: 'estoque',
+    loadComponent:() => import('./components/estoque/estoque').then(m=>m.EstoqueComponent)
   }
 ];

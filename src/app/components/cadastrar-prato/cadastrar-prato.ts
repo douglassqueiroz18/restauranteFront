@@ -12,6 +12,10 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Prato } from '../../models/prato.model';
 import { PratoService } from '../../services/prato-service';
 import { CategoriaService } from '../../services/categoria-service';
+import { Estoque } from '../../models/estoque.model';
+import { EstoqueService } from '../../services/estoque-service';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogoConfirmacao } from '../shared/dialogo-confirmacao/dialogo-confirmacao';
 
 @Component({
   selector: 'app-cadastrar-prato',
@@ -39,14 +43,68 @@ export class CadastrarPrato implements OnInit {
   private pratoService = inject(PratoService);
   private categoria = inject(CategoriaService);
   private snackBar = inject(MatSnackBar);
+  private estoqueService = inject(EstoqueService);
   displayedColumns: string[] = ['nome', 'categoria', 'preco', 'acoes'];
   prato: Prato = { nome: '', descricao: '', preco: 0, categoria: '', ativo: true };
   dataSource = new MatTableDataSource<Prato>([]);
+  insumosDisponiveis = signal<Estoque[]>([]);
+  private dialog = inject(MatDialog);
+  unidadesMedida = [
+    { valor: 'KG', label: 'Quilograma (KG)' },
+    { valor: 'G', label: 'Grama (G)' },
+    { valor: 'L', label: 'Litro (L)' },
+    { valor: 'ML', label: 'Mililitro (ML)' },
+    { valor: 'UN', label: 'Unidade (UN)' },
+    { valor: 'PCT', label: 'Pacote (PCT)' },
+    { valor: 'CX', label: 'Caixa (CX)' },
+    { valor: 'DZ', label: 'Dúzia (DZ)' },
+    { valor: 'MACO', label: 'Maço (MAÇO)' } // Comum para temperos como salsinha
+  ];
+  novoIngrediente = {
+  insumoId: null,
+  quantidade: 0,
+  unidade: '',
+  nome: ''
+  };
   ngOnInit(): void {
     this.carregarPratos();
     this.carregarCategorias();
+    this.carregarEstoque();
+  }
+  carregarEstoque() {
+    this.estoqueService.listarTodos().subscribe(dados => this.insumosDisponiveis.set(dados));
+  }
+  adicionarIngrediente() {
+  if (!this.novoIngrediente.insumoId || this.novoIngrediente.quantidade <= 0) {
+    this.snackBar.open('Selecione um insumo e a quantidade!', 'OK', { duration: 2000 });
+    return;
+  }
+  const insumoCompleto = this.insumosDisponiveis().find(i => i.id === this.novoIngrediente.insumoId);
+  if (!this.prato.ingredientes) {
+    this.prato.ingredientes = [];
   }
 
+  this.prato.ingredientes.push({
+    insumo: { ...insumoCompleto },
+    quantidadeNecessaria: this.novoIngrediente.quantidade,
+    unidadeMedida: this.novoIngrediente.unidade || this.getUnidadeInsumo(this.novoIngrediente.insumoId)
+  });
+
+  this.novoIngrediente = {
+    insumoId: null,
+    quantidade: 0,
+    unidade: '',
+    nome: ''
+  };
+}
+
+  removerIngrediente(index: number) {
+    this.prato.ingredientes?.splice(index, 1);
+  }
+
+  getNomeInsumo(id: any): string {
+    return this.insumosDisponiveis().find(i => i.id === id)?.nome || 'Desconhecido';
+  }
   carregarPratos() {
     this.pratoService.listarTodos().subscribe(dados => {
       this.pratos.set(dados);
@@ -67,22 +125,40 @@ export class CadastrarPrato implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   salvar() {
-    const operacao = this.prato.id
-      ? this.pratoService.atualizar(this.prato.id, this.prato) // Você precisará desse método no seu Service
-      : this.pratoService.criar(this.prato);
+  const operacao = this.prato.id
+    ? this.pratoService.atualizar(this.prato.id, this.prato)
+    : this.pratoService.criar(this.prato);
 
-    operacao.subscribe({
-      next: () => {
-        const mensagem = this.prato.id ? 'Prato atualizado!' : 'Prato criado!';
-        this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
+  operacao.subscribe({
+    next: () => {
+      const mensagem = this.prato.id ? 'Prato atualizado!' : 'Prato criado!';
+      this.snackBar.open(mensagem, 'Fechar', { duration: 3000 });
+      this.carregarPratos();
 
-        this.carregarPratos();
       setTimeout(() => {
         this.limparForm();
-      });      },
-      error: () => this.snackBar.open('Erro ao salvar!', 'X', { duration: 3000 })
-    });
-  }
+      });
+    },
+    error: (err) => {
+      // Pega a mensagem do backend
+      const mensagemErro = err.error?.message || err.error || 'Erro inesperado ao salvar o prato.';
+
+      // Abre o seu componente de diálogo
+      this.dialog.open(DialogoConfirmacao, {
+        width: '400px',
+        data: {
+          titulo: 'Atenção',
+          mensagem: mensagemErro,
+          textoConfirmar: 'Entendido',
+          // Como é um aviso de erro, talvez você queira esconder o botão cancelar
+          // se o seu modelo DialogData permitir, ou apenas ignorá-lo.
+        }
+      });
+
+      console.error('Erro detalhado:', err);
+    }
+  });
+}
   deletar(id: number) {
     if (confirm('Tem certeza que deseja excluir este prato?')) {
       this.pratoService.deletar(id).subscribe(() => {
@@ -92,6 +168,24 @@ export class CadastrarPrato implements OnInit {
     }
   }
   limparForm() {
-    this.prato = { nome: '', descricao: '', preco: 0, categoria: '', ativo: true };
+  this.prato = {
+    id: undefined,
+    nome: '',
+    descricao: '',
+    preco: 0,
+    categoria: '',
+    ativo: true,
+    ingredientes: []
+  };
+  this.novoIngrediente = {
+    insumoId: null,
+    quantidade: 0,
+    unidade: '',
+    nome: ''
+  };
   }
+ getUnidadeInsumo(id: any): string {
+  const insumo = this.insumosDisponiveis().find(i => i.id === id);
+  return insumo ? insumo.unidadeMedida : '';
+}
 }

@@ -1,87 +1,189 @@
-/* src/app/pages/cadastrar-prato/cadastrar-prato.scss */
+/* Variáveis de Design */
 $primary-color: #3f51b5;
-$bg-color: #f5f7fa;
+$accent-color: #ff4081;
+$success-color: #2e7d32;
+$warn-color: #f44336;
+$bg-color: #f8fafc;
+$card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
+/* Estrutura Principal */
 .container {
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column; // Faz um card ficar abaixo do outro
-  align-items: center;    // Centraliza os cards na tela
-  gap: 30px;              // Espaço entre o card de formulário e o de tabela
-  background-color: $bg-color;
-  min-height: 100vh;
-}
-
-.form-card {
-  width: 100%;
-  max-width: 900px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-  overflow: hidden;
-
-  mat-card-header {
-    background-color: white;
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
-  }
-}
-
-.responsive-form {
-  padding: 0 10px;
+  padding: 40px;
   display: flex;
   flex-direction: column;
-
-  .row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 10px;
-
-    .col { flex: 1; }
-    .col-small { flex: 0.4; }
-    .col-large { flex: 0.6; }
-  }
-}
-
-.filter-field {
+  align-items: center;
+  gap: 32px;
   width: 100%;
-  padding: 0 20px;
+  background-color: $bg-color;
+  min-height: 100vh;
   box-sizing: border-box;
 }
 
-/* Estilização da Tabela */
-mat-table {
+/* Base de largura para Notebooks e Desktops */
+.form-card, .list-container {
   width: 100%;
-  box-shadow: none !important;
+  max-width: 1200px; // Ajustado para preencher melhor a tela do notebook
+  transition: max-width 0.3s ease;
+}
 
-  mat-header-row {
-    background-color: #fafafa;
+/* Ajuste para Monitores Grandes (Full HD ou superior) */
+@media (min-width: 1600px) {
+  .form-card, .list-container {
+    max-width: 1400px;
+  }
+}
+
+/* Estilização dos Cards */
+.form-card, .list-card {
+  border-radius: 16px;
+  box-shadow: $card-shadow !important;
+  border: none;
+  background: white;
+  overflow: hidden;
+
+  mat-card-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid #f1f5f9;
+
+    mat-card-title {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 1.5rem;
+    }
+    mat-card-subtitle { color: #64748b; }
   }
 
-  mat-row:hover {
-    background-color: #fcfcfc;
-    transition: background 0.2s;
+  mat-card-content {
+    padding: 32px !important;
+  }
+}
+
+/* Formulário de Cadastro */
+.responsive-form {
+  .row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    .col { flex: 1; }
+    .col-small { flex: 0.3; }
+    .col-large { flex: 0.7; }
+  }
+}
+
+/* Ficha Técnica (Ingredientes) */
+.ingredients-section {
+  background-color: #f8fafc;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-top: 24px;
+
+  .section-title {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .row.align-items-center {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    .col-md-4 { flex: 2; }
+    .col-md-3 { flex: 1; }
+    .col-md-2 {
+      padding-top: 4px;
+      button { height: 54px; width: 100%; border-radius: 8px; }
+    }
+  }
+}
+
+/* Lista de Pratos (Tabela Principal) */
+.list-container {
+  margin-bottom: 50px;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .stats-badge {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+}
+
+.table-toolbar {
+  padding-bottom: 16px;
+  .filter-field { width: 100%; }
+}
+
+.table-responsive {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  background: white;
+  overflow: hidden;
+}
+
+.custom-main-table {
+  /* Distribui melhor as larguras das colunas */
+  .mat-column-nome {
+    width: 35%;
+    padding-right: 24px;
+  }
+
+  .mat-column-categoria {
+    width: 20%;
   }
 
   .mat-column-preco {
+    width: 20%;
+  }
+
+  .mat-column-acoes {
+    width: 25%;
+  }
+
+  /* Faz o nome do prato se destacar mais */
+  .prato-nome {
+    font-size: 1rem;
+    color: $primary-color;
     font-weight: 600;
-    color: #2e7d32;
   }
 }
 
-.empty-list {
-  padding: 40px;
-  text-align: center;
-  color: #888;
-  font-style: italic;
+/* Rodapé de Ações do Cadastro */
+mat-card-actions {
+  padding: 16px 32px !important;
+  background-color: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  gap: 12px;
+  button { padding: 0 24px; font-weight: 600; border-radius: 8px; }
 }
 
-/* Responsividade */
+/* Utilitários */
+.no-data { padding: 40px !important; text-align: center; color: #94a3b8; font-style: italic; }
+.w-100 { width: 100%; }
+
+/* Responsividade Mobile */
 @media (max-width: 768px) {
   .container { padding: 15px; }
-
-  .row {
+  .responsive-form .row, .ingredients-section .row.align-items-center {
     flex-direction: column;
     gap: 0;
   }
+  .form-card, .list-container { border-radius: 0; }
 }

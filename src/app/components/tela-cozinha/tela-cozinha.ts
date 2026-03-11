@@ -46,7 +46,6 @@ export class TelaCozinha implements OnInit {
     const statusEnum = this.converterParaEnum(novoStatus);
     this.pedidoService.atualizarStatus(id, statusEnum).subscribe({
     next: () => {
-      console.log(`Pedido ${id} atualizado para ${statusEnum} no banco.`);
       // Opcional: recarregar para garantir sincronia total
       // this.carregarPedidos();
     },
@@ -67,6 +66,7 @@ export class TelaCozinha implements OnInit {
 carregarPedidos() {
   this.pedidoService.listarTodos().subscribe({
     next: (dadosDoBanco: Pedido[]) => {
+      const hoje = new Date().toLocaleDateString(); // Pega a data de hoje (DD/MM/AAAA)
       const pedidosFormatados: PedidoCozinha[] = dadosDoBanco.map(p => ({
         id: p.id || 0,
 

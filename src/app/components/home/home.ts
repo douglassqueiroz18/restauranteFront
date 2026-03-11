@@ -64,6 +64,13 @@ export class Home {
       rota: '/tela-cozinha',
       icon: 'kitchen',
       cor: '#009688'
+    },
+        {
+      titulo: 'Estoque',
+      subtitulo: 'Acompanhar pedidos',
+      rota: '/estoque',
+      icon: 'kitchen',
+      cor: '#009688'
     }
   ];
 

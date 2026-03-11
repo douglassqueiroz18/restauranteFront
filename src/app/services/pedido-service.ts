@@ -32,15 +32,10 @@ export class PedidoService {
     return this.http.post<Pedido>(this.API, pedido);
   }
 
-  atualizar(id: number, pedido: Pedido): Observable<Pedido> {
-    console.log('Atualizando pedido ID:', id, 'com dados:', pedido);
-    return this.http.put<Pedido>(`${this.API}/${id}`, pedido);
+  atualizar(id: number, pedido: Pedido, deveEstornar: boolean): Observable<Pedido> {
+    return this.http.put<Pedido>(`${this.API}/${id}?deveEstornar=${deveEstornar}`, pedido);
   }
 
-  /**
-   * Atualiza apenas o status do pedido (útil para a tela da cozinha/garçom)
-   * Corresponde ao @PatchMapping do Controller
-   */
   atualizarStatus(id: number, status: StatusPedido): Observable<void> {
     return this.http.patch<void>(`${this.API}/${id}/status/${status}`, {});
   }

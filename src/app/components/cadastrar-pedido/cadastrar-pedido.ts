@@ -18,6 +18,8 @@ import { PratoService } from '../../services/prato-service';
 import { PedidoService } from '../../services/pedido-service';
 import { MesaService } from '../../services/mesa-service';
 import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
+import { DialogoConfirmacao } from '../shared/dialogo-confirmacao/dialogo-confirmacao';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-cadastrar-pedido',
@@ -32,10 +34,10 @@ import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/c
     MatSelectModule,
     MatIconModule,
     MatSnackBarModule,
-    MatTableModule
+    MatTableModule,
   ],
   templateUrl: './cadastrar-pedido.html',
-  styleUrl: './cadastrar-pedido.scss'
+  styleUrl: './cadastrar-pedido.scss',
 })
 export class CadastrarPedido implements OnInit {
   // Services
@@ -44,6 +46,7 @@ export class CadastrarPedido implements OnInit {
   private pratoService = inject(PratoService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
   mesasDisponiveis = signal<Mesa[]>([]);
   cardapio = signal<Prato[]>([]);
   indexItemEdicao: number | null = null;
@@ -59,17 +62,17 @@ export class CadastrarPedido implements OnInit {
     this.carregarDadosIniciais();
   }
 
-carregarDadosIniciais() {
-  this.mesaService.listarTodas().subscribe((m: Mesa[]) => {
-    this.mesasDisponiveis.set(m);
-  });
+  carregarDadosIniciais() {
+    this.mesaService.listarTodas().subscribe((m: Mesa[]) => {
+      this.mesasDisponiveis.set(m);
+    });
 
-  this.pratoService.listarTodos().subscribe((p: Prato[]) => {
-    this.cardapio.set(p);
-  });
+    this.pratoService.listarTodos().subscribe((p: Prato[]) => {
+      this.cardapio.set(p);
+    });
 
-  this.carregarPedidos();
-}
+    this.carregarPedidos();
+  }
 
   carregarPedidos() {
     this.pedidoService.listarTodos().subscribe({
@@ -77,38 +80,36 @@ carregarDadosIniciais() {
         // Forçamos uma nova instância do array para o MatTable detectar a mudança
         this.dataSource.data = [...dados];
         this.cdr.detectChanges();
-        console.log('Pedidos atualizados na tabela:', dados);
       },
-      error: (err) => console.error('Erro ao carregar lista:', err)
+      error: (err) => console.error('Erro ao carregar lista:', err),
     });
   }
 
-
   adicionarItem() {
-  if (!this.pratoSelecionado || this.quantidadeInformada <= 0) return;
+    if (!this.pratoSelecionado || this.quantidadeInformada <= 0) return;
 
-  const subtotal = this.pratoSelecionado.preco * this.quantidadeInformada;
+    const subtotal = this.pratoSelecionado.preco * this.quantidadeInformada;
 
-  const novoItem: ItemPedido = {
-    prato: this.pratoSelecionado,
-    quantidade: this.quantidadeInformada,
-    precoUnitario: this.pratoSelecionado.preco,
-    subtotal: subtotal
-  };
+    const novoItem: ItemPedido = {
+      prato: this.pratoSelecionado,
+      quantidade: this.quantidadeInformada,
+      precoUnitario: this.pratoSelecionado.preco,
+      subtotal: subtotal,
+    };
 
-  if (this.indexItemEdicao !== null) {
-    // CONSERTO: use spread para evitar retenção de referência inválida
-    this.pedido.itens[this.indexItemEdicao] = { ...novoItem };
-  } else {
-    this.pedido.itens.push({ ...novoItem });
+    if (this.indexItemEdicao !== null) {
+      // CONSERTO: use spread para evitar retenção de referência inválida
+      this.pedido.itens[this.indexItemEdicao] = { ...novoItem };
+    } else {
+      this.pedido.itens.push({ ...novoItem });
+    }
+
+    this.indexItemEdicao = null;
+    this.calcularTotalPedido();
+
+    this.pratoSelecionado = undefined;
+    this.quantidadeInformada = 1;
   }
-
-  this.indexItemEdicao = null;
-  this.calcularTotalPedido();
-
-  this.pratoSelecionado = undefined;
-  this.quantidadeInformada = 1;
-}
   removerItem(index: number) {
     this.pedido.itens.splice(index, 1);
     this.calcularTotalPedido();
@@ -118,68 +119,93 @@ carregarDadosIniciais() {
     this.pedido.total = this.pedido.itens.reduce((acc, item) => acc + item.subtotal, 0);
   }
 
-editarItemNoCarrinho(index: number) {
-  const item = this.pedido.itens[index];
+  editarItemNoCarrinho(index: number) {
+    const item = this.pedido.itens[index];
 
-  // Garante que existe um prato correspondente no cardápio atual
-  this.pratoSelecionado = this.cardapio().find(p => p.id === item.prato.id);
+    // Garante que existe um prato correspondente no cardápio atual
+    this.pratoSelecionado = this.cardapio().find((p) => p.id === item.prato.id);
 
-  this.quantidadeInformada = item.quantidade;
-  this.indexItemEdicao = index;
-}
+    this.quantidadeInformada = item.quantidade;
+    this.indexItemEdicao = index;
+  }
   salvar() {
-  if (this.pedido.itens.length === 0) {
-    this.snackBar.open('Adicione pelo menos um item ao pedido!', 'Aviso', { duration: 3000 });
-    return;
+    this.cdr.detectChanges();
+    if (this.pedido.itens.length === 0) {
+      this.snackBar.open('Adicione pelo menos um item ao pedido!', 'Aviso', { duration: 3000 });
+      return;
+    }
+
+    this.calcularTotalPedido();
+
+    // Caso especial: Pedido sendo editado e marcado como CANCELADO
+    if (this.pedido.id && this.pedido.status === StatusPedido.CANCELADO) {
+      const dialogRef = this.dialog.open(DialogoConfirmacao, {
+        width: '400px',
+        data: {
+          tipo: 'confirmacao',
+          titulo: 'Estorno de Estoque',
+          mensagem: 'Os insumos deste pedido foram utilizados ou podem ser devolvidos ao estoque?',
+          textoConfirmar: 'Devolver ao Estoque',
+          textoCancelar: 'Já foram utilizados'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(deveEstornar => {
+        if (deveEstornar !== undefined) {
+          deveEstornar == false;
+          this.executarSalvar(deveEstornar);
+        }
+      });
+    } else {
+      this.executarSalvar(true);
+    }
   }
 
-  // Garantimos que o total está atualizado antes de enviar
-  this.calcularTotalPedido();
-
+// Criamos um método auxiliar para não repetir código
+private executarSalvar(deveEstornar: boolean) {
   const operacao = this.pedido.id
-    ? this.pedidoService.atualizar(this.pedido.id, this.pedido)
+    ? this.pedidoService.atualizar(this.pedido.id, this.pedido, deveEstornar)
     : this.pedidoService.criar(this.pedido);
-  console.log('dentro do salvar, pedido enviado para backend:', this.pedido);
+
   operacao.subscribe({
     next: () => {
-      this.snackBar.open('Pedido salvo com sucesso!', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Pedido processado com sucesso!', 'Fechar', { duration: 3000 });
       this.carregarPedidos();
-
-      // O segredo para o erro NG0100:
-      // Empurrar o reset para o final da fila de execução
-      setTimeout(() => {
-        this.limparForm();
-        this.cdr.detectChanges();
-      });
+      setTimeout(() => this.limparForm());
     },
     error: (err) => {
-      console.error('Erro ao salvar:', err);
-      this.snackBar.open('Erro ao salvar pedido!', 'X', { duration: 3000 });
+      const msg = err.error?.message || 'Erro ao salvar pedido.';
+      this.snackBar.open(msg, 'Erro', { duration: 5000 });
     }
   });
 }
 
-editar(pedidoSelecionado: Pedido) {
-  this.pedido = structuredClone(pedidoSelecionado);
-  this.pratoSelecionado = undefined;
-  this.quantidadeInformada = 1;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-compararObjetos(a: any, b: any): boolean {
-  if (a === b) return true;
+  editar(pedidoSelecionado: Pedido) {
+  setTimeout(() => {
+    this.pedido = structuredClone(pedidoSelecionado);
+    this.pratoSelecionado = undefined;
+    this.quantidadeInformada = 1;
+    this.indexItemEdicao = null;
 
-  // enum (string)
-  if (typeof a === 'string' && typeof b === 'string') {
-    return a === b;
+    this.cdr.detectChanges();
+  });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+  compararObjetos(a: any, b: any): boolean {
+    if (a === b) return true;
 
-  // objetos com id
-  if (a && b && a.id && b.id) {
-    return a.id === b.id;
+    // enum (string)
+    if (typeof a === 'string' && typeof b === 'string') {
+      return a === b;
+    }
+
+    // objetos com id
+    if (a && b && a.id && b.id) {
+      return a.id === b.id;
+    }
+
+    return false;
   }
-
-  return false;
-}
   deletar(id: number) {
     if (confirm('Deseja cancelar/excluir este pedido?')) {
       this.pedidoService.deletar(id).subscribe(() => {
@@ -193,6 +219,9 @@ compararObjetos(a: any, b: any): boolean {
     this.pedido = this.inicializarNovoPedido();
     this.pratoSelecionado = undefined;
     this.quantidadeInformada = 1;
+    this.indexItemEdicao = null;
+    this.cdr.detectChanges();
+
   }
 
   private inicializarNovoPedido(): Pedido {
@@ -201,7 +230,7 @@ compararObjetos(a: any, b: any): boolean {
       itens: [],
       dataHora: new Date(),
       status: StatusPedido.PENDENTE,
-      total: 0
+      total: 0,
     };
   }
 
