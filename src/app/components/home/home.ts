@@ -65,10 +65,17 @@ export class Home {
       icon: 'kitchen',
       cor: '#009688'
     },
-        {
+    {
       titulo: 'Estoque',
       subtitulo: 'Acompanhar pedidos',
       rota: '/estoque',
+      icon: 'kitchen',
+      cor: '#009688'
+    },
+        {
+      titulo: 'Kpi',
+      subtitulo: 'Acompanhar Indicadores',
+      rota: '/kpi',
       icon: 'kitchen',
       cor: '#009688'
     }

@@ -38,5 +38,9 @@ export const routes: Routes = [
   {
     path: 'estoque',
     loadComponent:() => import('./components/estoque/estoque').then(m=>m.EstoqueComponent)
+  },
+  {
+    path: 'kpi',
+    loadComponent:() => import('./components/kpi/kpi').then(m=>m.KpiComponent)
   }
 ];

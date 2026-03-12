@@ -1,0 +1,157 @@
+.dashboard-wrapper {
+  padding: 32px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+
+    .titulo {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: #2c3e50;
+      letter-spacing: -0.5px;
+    }
+  }
+}
+
+.grid-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+
+  .card-item {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    mat-card-content {
+      display: flex;
+      align-items: center;
+      padding: 24px !important;
+    }
+
+    .icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .info {
+      .label {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 13px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+      .valor {
+        margin: 4px 0 0 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+    }
+
+    // Estilização por Tipo
+    &.faturamento {
+      .icon-box { background-color: rgba(46, 125, 50, 0.1); mat-icon { color: #2e7d32; } }
+    }
+    &.pedidos {
+      .icon-box { background-color: rgba(25, 118, 210, 0.1); mat-icon { color: #1976d2; } }
+    }
+    &.ticket {
+      .icon-box { background-color: rgba(237, 108, 2, 0.1); mat-icon { color: #ed6c02; } }
+    }
+  }
+}
+
+.card-status {
+  border-radius: 16px;
+  margin-top: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+  mat-card-header {
+    margin-bottom: 16px;
+    mat-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #34495e;
+    }
+  }
+}
+
+.status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .status-box {
+    flex: 1;
+    min-width: 160px;
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: background 0.2s;
+
+    &:hover { background: #fdfdfd; }
+
+    .status-nome {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .status-count {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .status-indicator {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 100%;
+      border-radius: 0 0 12px 12px;
+      background: #cbd5e1; // Default
+
+      &[data-status="CANCELADO"] { background: #e53935; }
+      &[data-status="FINALIZADO"] { background: #43a047; }
+      &[data-status="PENDENTE"] { background: #fb8c00; }
+    }
+  }
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
