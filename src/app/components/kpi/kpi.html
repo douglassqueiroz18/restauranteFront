@@ -1,9 +1,10 @@
 <div class="dashboard-wrapper">
   <div class="header-section">
     <h1 class="titulo">Visão Geral do Restaurante</h1>
-    <button mat-stroked-button (click)="carregarDados()" color="primary">
-      <mat-icon>refresh</mat-icon> Atualizar
-    </button>
+    <button mat-stroked-button (click)="carregarDados()" color="primary" [disabled]="carregando()">
+  <mat-icon [class.spinner]="carregando()">refresh</mat-icon>
+  {{ carregando() ? 'Atualizando...' : 'Atualizar' }}
+</button>
   </div>
 
   <div class="grid-kpis" *ngIf="dadosKpi() as info">
@@ -32,17 +33,6 @@
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="card-item ticket">
-      <mat-card-content>
-        <div class="icon-box">
-          <mat-icon>analytics</mat-icon>
-        </div>
-        <div class="info">
-          <p class="label">Ticket Médio</p>
-          <h2 class="valor">{{ info.ticketMedio | currency:'BRL' }}</h2>
-        </div>
-      </mat-card-content>
-    </mat-card>
 
     <mat-card class="full-width card-status">
       <mat-card-header>

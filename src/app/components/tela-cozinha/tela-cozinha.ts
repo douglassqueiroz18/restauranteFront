@@ -46,12 +46,8 @@ export class TelaCozinha implements OnInit {
     const statusEnum = this.converterParaEnum(novoStatus);
     this.pedidoService.atualizarStatus(id, statusEnum).subscribe({
     next: () => {
-      // Opcional: recarregar para garantir sincronia total
-      // this.carregarPedidos();
     },
     error: (err) => {
-      console.error('Erro ao atualizar status no banco:', err);
-      // Se der erro, voltamos o pedido para o estado anterior (opcional)
       this.carregarPedidos();
     }
     });
@@ -66,19 +62,17 @@ export class TelaCozinha implements OnInit {
 carregarPedidos() {
   this.pedidoService.listarTodos().subscribe({
     next: (dadosDoBanco: Pedido[]) => {
-      const hoje = new Date().toLocaleDateString(); // Pega a data de hoje (DD/MM/AAAA)
-      const pedidosFormatados: PedidoCozinha[] = dadosDoBanco.map(p => ({
-        id: p.id || 0,
-
-        // CORREÇÃO AQUI:
-        // Em vez de passar 'p.mesa' (o objeto), passe o número ou nome formatado.
-        // Se o seu model Mesa tiver a propriedade 'numero', use p.mesa.numero
-        mesa: p.mesa ? `Mesa ${p.mesa.numero}` : 'Balcão',
-
-        horario: p.dataHora ? new Date(p.dataHora) : new Date(),
-        itens: p.itens?.map((item: any) => item.prato?.nome || item.nome) || [],
-        status: this.mapearStatus(p.status)
-      }));
+      const pedidosFormatados: PedidoCozinha[] = dadosDoBanco
+        .filter(p => {
+          return p.status !== StatusPedido.CANCELADO;
+        })
+        .map(p => ({
+          id: p.id || 0,
+          mesa: p.mesa ? `Mesa ${p.mesa.numero}` : 'Balcão',
+          horario: p.dataHora ? new Date(p.dataHora) : new Date(),
+          itens: p.itens?.map((item: any) => item.prato?.nome || item.nome) || [],
+          status: this.mapearStatus(p.status)
+        }));
 
       this.pedidos.set(pedidosFormatados);
     },

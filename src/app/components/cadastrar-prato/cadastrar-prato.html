@@ -40,6 +40,40 @@
             <mat-label>Descrição / Modo de Preparo</mat-label>
             <textarea matInput [(ngModel)]="prato.descricao" name="descricao" rows="1"></textarea>
           </mat-form-field>
+          <div class="col-large">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              style="display: none"
+            />
+
+            <mat-form-field
+              appearance="outline"
+              class="full-width"
+              [style.opacity]="!prato.nome ? '0.6' : '1'"
+              (click)="verificarEPredirecionarUpload(fileInput)"
+            >
+              <mat-label>Imagem do Prato</mat-label>
+              <input
+                matInput
+                [value]="fileName"
+                readonly
+                [disabled]="!prato.nome"
+                placeholder="Selecione uma imagem"
+              />
+
+              <mat-icon matSuffix [color]="prato.nome ? 'primary' : ''">cloud_upload</mat-icon>
+            </mat-form-field>
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
         </div>
 
         <hr class="my-4" />

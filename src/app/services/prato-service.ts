@@ -39,10 +39,25 @@ export class PratoService {
   }
 
   atualizar(id: number, prato: Prato): Observable<Prato> {
+    console.log('debugando o atualizar: ', prato.fotoUrl);
     return this.http.put<Prato>(`${this.API}/${id}`, prato);
   }
 
   deletar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
+  getUploadUrl(nomeArquivo: string, contentType: string): Observable<{url: string}> {
+  return this.http.get<{url: string}>(`${this.API}/upload-url`, {
+    params: { nomeArquivo, contentType }
+  });
+}
+
+  uploadArquivo(urlAssinada: string, arquivo: File): Observable<any> {
+  return this.http.put(urlAssinada, arquivo, {
+  headers: {
+      'Content-Type': arquivo.type,
+      'x-amz-acl': 'public-read'
+    }
+  });
+}
 }

@@ -51,7 +51,6 @@ export class AreaCliente implements OnInit  {
   categoria: Categoria = { nome: '', descricao: '' };
   itensPedido = signal<Prato[]>([]);
 
-  // Computeds para atualizar a tela automaticamente
   totalPedido = computed(() => this.itensPedido().reduce((acc, p) => acc + (p.preco || 0), 0));
   nomesItens = computed(() => this.itensPedido().map(p => p.nome).join(', '));
   ngOnInit(){

@@ -8,6 +8,7 @@ export interface Prato {
   categoria: string;
   ativo: boolean;
   ingredientes?: PratoInsumo[];
+  fotoUrl?: string;
 }
 export interface PratoInsumo {
   id?: number;

@@ -152,6 +152,23 @@
   }
 }
 
-.full-width {
-  grid-column: 1 / -1;
+// No arquivo kpi.scss
+.spinner {
+  display: inline-block;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Opcional: dar um espaçamento entre o ícone e o texto
+mat-icon {
+  margin-right: 8px;
+  vertical-align: middle;
 }

@@ -32,7 +32,7 @@ import { DialogoConfirmacao } from '../shared/dialogo-confirmacao/dialogo-confir
     MatSnackBarModule,
     MatTableModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   templateUrl: './cadastrar-prato.html',
   styleUrl: './cadastrar-prato.scss',
@@ -45,26 +45,23 @@ export class CadastrarPrato implements OnInit {
   private snackBar = inject(MatSnackBar);
   private estoqueService = inject(EstoqueService);
   displayedColumns: string[] = ['nome', 'categoria', 'preco', 'acoes'];
-  prato: Prato = { nome: '', descricao: '', preco: 0, categoria: '', ativo: true };
+  prato: Prato = { nome: '', descricao: '', preco: 0, categoria: '', ativo: true, fotoUrl: '' };
   dataSource = new MatTableDataSource<Prato>([]);
   insumosDisponiveis = signal<Estoque[]>([]);
   private dialog = inject(MatDialog);
+  fileName = '';
+  arquivoSelecionado: File | null = null;
   unidadesMedida = [
     { valor: 'KG', label: 'Quilograma (KG)' },
     { valor: 'G', label: 'Grama (G)' },
     { valor: 'L', label: 'Litro (L)' },
     { valor: 'ML', label: 'Mililitro (ML)' },
-    { valor: 'UN', label: 'Unidade (UN)' },
-    { valor: 'PCT', label: 'Pacote (PCT)' },
-    { valor: 'CX', label: 'Caixa (CX)' },
-    { valor: 'DZ', label: 'Dúzia (DZ)' },
-    { valor: 'MACO', label: 'Maço (MAÇO)' } // Comum para temperos como salsinha
   ];
   novoIngrediente = {
-  insumoId: null,
-  quantidade: 0,
-  unidade: '',
-  nome: ''
+    insumoId: null,
+    quantidade: 0,
+    unidade: '',
+    nome: '',
   };
   ngOnInit(): void {
     this.carregarPratos();
@@ -72,47 +69,57 @@ export class CadastrarPrato implements OnInit {
     this.carregarEstoque();
   }
   carregarEstoque() {
-    this.estoqueService.listarTodos().subscribe(dados => this.insumosDisponiveis.set(dados));
+    this.estoqueService.listarTodos().subscribe((dados) => this.insumosDisponiveis.set(dados));
+  }
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.fileName = file.name;
+      this.arquivoSelecionado = file;
+    }
   }
   adicionarIngrediente() {
-  if (!this.novoIngrediente.insumoId || this.novoIngrediente.quantidade <= 0) {
-    this.snackBar.open('Selecione um insumo e a quantidade!', 'OK', { duration: 2000 });
-    return;
-  }
-  const insumoCompleto = this.insumosDisponiveis().find(i => i.id === this.novoIngrediente.insumoId);
-  if (!this.prato.ingredientes) {
-    this.prato.ingredientes = [];
-  }
+    if (!this.novoIngrediente.insumoId || this.novoIngrediente.quantidade <= 0) {
+      this.snackBar.open('Selecione um insumo e a quantidade!', 'OK', { duration: 2000 });
+      return;
+    }
+    const insumoCompleto = this.insumosDisponiveis().find(
+      (i) => i.id === this.novoIngrediente.insumoId,
+    );
+    if (!this.prato.ingredientes) {
+      this.prato.ingredientes = [];
+    }
 
-  this.prato.ingredientes.push({
-    insumo: { ...insumoCompleto },
-    quantidadeNecessaria: this.novoIngrediente.quantidade,
-    unidadeMedida: this.novoIngrediente.unidade || this.getUnidadeInsumo(this.novoIngrediente.insumoId)
-  });
+    this.prato.ingredientes.push({
+      insumo: { ...insumoCompleto },
+      quantidadeNecessaria: this.novoIngrediente.quantidade,
+      unidadeMedida:
+        this.novoIngrediente.unidade || this.getUnidadeInsumo(this.novoIngrediente.insumoId),
+    });
 
-  this.novoIngrediente = {
-    insumoId: null,
-    quantidade: 0,
-    unidade: '',
-    nome: ''
-  };
-}
+    this.novoIngrediente = {
+      insumoId: null,
+      quantidade: 0,
+      unidade: '',
+      nome: '',
+    };
+  }
 
   removerIngrediente(index: number) {
     this.prato.ingredientes?.splice(index, 1);
   }
 
   getNomeInsumo(id: any): string {
-    return this.insumosDisponiveis().find(i => i.id === id)?.nome || 'Desconhecido';
+    return this.insumosDisponiveis().find((i) => i.id === id)?.nome || 'Desconhecido';
   }
   carregarPratos() {
-    this.pratoService.listarTodos().subscribe(dados => {
+    this.pratoService.listarTodos().subscribe((dados) => {
       this.pratos.set(dados);
       this.dataSource.data = dados;
     });
   }
   carregarCategorias() {
-    this.categoria.listarTodas().subscribe(dados => {
+    this.categoria.listarTodas().subscribe((dados) => {
       this.categorias.set(dados);
     });
   }
@@ -125,6 +132,45 @@ export class CadastrarPrato implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   salvar() {
+  if (this.arquivoSelecionado) {
+    this.pratoService.getUploadUrl(this.arquivoSelecionado.name, this.arquivoSelecionado.type).subscribe({
+      next: (res) => {
+        const urlAssinada = res.url;
+
+        this.pratoService.uploadArquivo(urlAssinada, this.arquivoSelecionado!).subscribe({
+          next: () => {
+            const urlPublica = urlAssinada.split('?')[0];
+            console.log('Link que será salvo no banco:', urlPublica);
+            this.prato.fotoUrl = urlPublica;
+            this.enviarDadosParaBackend();
+          },
+          error: (err) => {
+            this.snackBar.open('Erro ao subir imagem para o storage.', 'Fechar', { duration: 3000 });
+            console.error(err);
+          }
+        });
+      },
+      error: (err) => {
+        this.snackBar.open('Erro ao obter permissão de upload.', 'Fechar', { duration: 3000 });
+      }
+    });
+  } else {
+    this.enviarDadosParaBackend();
+  }
+}
+verificarEPredirecionarUpload(fileInput: HTMLInputElement) {
+  if (!this.prato.nome || this.prato.nome.trim() === '') {
+    this.snackBar.open(
+      'Por favor, informe primeiro o nome do prato para vincular a imagem.',
+      'Entendido',
+      { duration: 4000, panelClass: ['warning-snackbar'] }
+    );
+    return;
+  }
+
+  fileInput.click();
+}
+private enviarDadosParaBackend() {
   const operacao = this.prato.id
     ? this.pratoService.atualizar(this.prato.id, this.prato)
     : this.pratoService.criar(this.prato);
@@ -137,26 +183,21 @@ export class CadastrarPrato implements OnInit {
 
       setTimeout(() => {
         this.limparForm();
+        this.fileName = '';
+        this.limparForm();
       });
     },
     error: (err) => {
-      // Pega a mensagem do backend
       const mensagemErro = err.error?.message || err.error || 'Erro inesperado ao salvar o prato.';
-
-      // Abre o seu componente de diálogo
       this.dialog.open(DialogoConfirmacao, {
         width: '400px',
         data: {
           titulo: 'Atenção',
           mensagem: mensagemErro,
           textoConfirmar: 'Entendido',
-          // Como é um aviso de erro, talvez você queira esconder o botão cancelar
-          // se o seu modelo DialogData permitir, ou apenas ignorá-lo.
-        }
+        },
       });
-
-      console.error('Erro detalhado:', err);
-    }
+    },
   });
 }
   deletar(id: number) {
@@ -168,24 +209,26 @@ export class CadastrarPrato implements OnInit {
     }
   }
   limparForm() {
-  this.prato = {
-    id: undefined,
-    nome: '',
-    descricao: '',
-    preco: 0,
-    categoria: '',
-    ativo: true,
-    ingredientes: []
-  };
-  this.novoIngrediente = {
-    insumoId: null,
-    quantidade: 0,
-    unidade: '',
-    nome: ''
-  };
+    this.prato = {
+      id: undefined,
+      nome: '',
+      descricao: '',
+      preco: 0,
+      categoria: '',
+      ativo: true,
+      ingredientes: [],
+      fotoUrl: '',
+    };
+    this.novoIngrediente = {
+      insumoId: null,
+      quantidade: 0,
+      unidade: '',
+      nome: '',
+    };
   }
- getUnidadeInsumo(id: any): string {
-  const insumo = this.insumosDisponiveis().find(i => i.id === id);
-  return insumo ? insumo.unidadeMedida : '';
-}
+  getUnidadeInsumo(id: any): string {
+    const insumo = this.insumosDisponiveis().find((i) => i.id === id);
+    return insumo ? insumo.unidadeMedida : '';
+  }
+
 }

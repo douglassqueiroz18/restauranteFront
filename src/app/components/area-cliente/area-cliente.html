@@ -31,8 +31,9 @@
             [selected]="isPratoSelecionado(prato)"
             (click)="togglePratoManual(prato)">
 
-            <mat-icon matListItemIcon>restaurant</mat-icon>
-            <div matListItemTitle>{{ prato.nome }}</div>
+    <img matListItemIcon
+      [src]="prato.fotoUrl || 'assets/sem-foto.png'"
+     [alt]="prato.nome"     style="width: 55px; height: 55px; border-radius: 8px; object-fit: cover;">            <div matListItemTitle>{{ prato.nome }}</div>
             <div matListItemLine>{{ prato.preco | currency:'BRL' }}</div>
           </mat-list-option>
         }
