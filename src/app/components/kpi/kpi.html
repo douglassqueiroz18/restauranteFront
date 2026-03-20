@@ -1,5 +1,10 @@
 <div class="dashboard-wrapper">
   <div class="header-section">
+      <div mat-card-avatar>
+        <button mat-icon-button (click)="voltar()" matTooltip="Voltar" class="btn-back">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
     <h1 class="titulo">Visão Geral do Restaurante</h1>
     <button mat-stroked-button (click)="carregarDados()" color="primary" [disabled]="carregando()">
   <mat-icon [class.spinner]="carregando()">refresh</mat-icon>

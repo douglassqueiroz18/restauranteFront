@@ -1,6 +1,11 @@
 <div class="container">
   <mat-card class="form-card">
     <mat-card-header>
+      <div mat-card-avatar>
+        <button mat-icon-button (click)="voltar()" matTooltip="Voltar" class="btn-back">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
       <mat-card-title>{{ mesa.id ? 'Editar Mesa' : 'Nova Mesa' }}</mat-card-title>
       <mat-card-subtitle>Configure as mesas do restaurante</mat-card-subtitle>
     </mat-card-header>

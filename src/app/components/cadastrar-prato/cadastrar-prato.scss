@@ -32,8 +32,15 @@ $card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 
     max-width: 1400px;
   }
 }
+.btn-back {
+  margin-right: 8px;
+  margin-top: -8px; /* Ajuste fino para alinhar com o título */
+}
 
-/* Estilização dos Cards */
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
 .form-card, .list-card {
   border-radius: 16px;
   box-shadow: $card-shadow !important;
@@ -42,6 +49,9 @@ $card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 
   overflow: hidden;
 
   mat-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
     padding: 24px 32px;
     border-bottom: 1px solid #f1f5f9;
 

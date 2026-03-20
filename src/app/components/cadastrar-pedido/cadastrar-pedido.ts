@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -47,6 +47,7 @@ export class CadastrarPedido implements OnInit {
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
+  private location = inject(Location);
   mesasDisponiveis = signal<Mesa[]>([]);
   cardapio = signal<Prato[]>([]);
   indexItemEdicao: number | null = null;
@@ -67,9 +68,9 @@ export class CadastrarPedido implements OnInit {
       this.mesasDisponiveis.set(m);
     });
 
-    this.pratoService.listarTodos().subscribe((p: Prato[]) => {
-      this.cardapio.set(p);
-    });
+  this.pratoService.listarAtivos().subscribe((p: Prato[]) => {
+    this.cardapio.set(p);
+  });
 
     this.carregarPedidos();
   }
@@ -77,7 +78,6 @@ export class CadastrarPedido implements OnInit {
   carregarPedidos() {
     this.pedidoService.listarTodos().subscribe({
       next: (dados: Pedido[]) => {
-        // Forçamos uma nova instância do array para o MatTable detectar a mudança
         this.dataSource.data = [...dados];
         this.cdr.detectChanges();
       },
@@ -98,7 +98,6 @@ export class CadastrarPedido implements OnInit {
     };
 
     if (this.indexItemEdicao !== null) {
-      // CONSERTO: use spread para evitar retenção de referência inválida
       this.pedido.itens[this.indexItemEdicao] = { ...novoItem };
     } else {
       this.pedido.itens.push({ ...novoItem });
@@ -122,7 +121,6 @@ export class CadastrarPedido implements OnInit {
   editarItemNoCarrinho(index: number) {
     const item = this.pedido.itens[index];
 
-    // Garante que existe um prato correspondente no cardápio atual
     this.pratoSelecionado = this.cardapio().find((p) => p.id === item.prato.id);
 
     this.quantidadeInformada = item.quantidade;
@@ -237,5 +235,8 @@ private executarSalvar(deveEstornar: boolean) {
   aplicarFiltro(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+  voltar() {
+    this.location.back();
   }
 }

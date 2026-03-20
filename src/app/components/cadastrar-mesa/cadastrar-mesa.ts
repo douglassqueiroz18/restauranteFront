@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,6 +34,7 @@ export class CadastrarMesa implements OnInit {
   private mesaService = inject(MesaService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private location = inject(Location);
   mesas = signal<Mesa[]>([]);
   dataSource = new MatTableDataSource<Mesa>([]);
   displayedColumns: string[] = ['numero', 'capacidade', 'status', 'acoes'];
@@ -91,5 +92,8 @@ this.mesaService.deletar(id).subscribe({
 
   limparForm() {
     this.mesa = { numero: 0, capacidade: 0, status: StatusMesa.DISPONIVEL };
+  }
+  voltar() {
+    this.location.back();
   }
 }

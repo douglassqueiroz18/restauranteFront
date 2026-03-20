@@ -1,7 +1,7 @@
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,7 +44,8 @@ export class CadastrarPrato implements OnInit {
   private categoria = inject(CategoriaService);
   private snackBar = inject(MatSnackBar);
   private estoqueService = inject(EstoqueService);
-  displayedColumns: string[] = ['nome', 'categoria', 'preco', 'acoes'];
+  private location = inject(Location);
+  displayedColumns: string[] = ['nome', 'categoria','status', 'preco', 'acoes', 'status'];
   prato: Prato = { nome: '', descricao: '', preco: 0, categoria: '', ativo: true, fotoUrl: '' };
   dataSource = new MatTableDataSource<Prato>([]);
   insumosDisponiveis = signal<Estoque[]>([]);
@@ -201,13 +202,38 @@ private enviarDadosParaBackend() {
   });
 }
   deletar(id: number) {
-    if (confirm('Tem certeza que deseja excluir este prato?')) {
-      this.pratoService.deletar(id).subscribe(() => {
-        this.snackBar.open('Prato removido!', 'OK', { duration: 2000 });
-        this.carregarPratos();
+  const dialogRef = this.dialog.open(DialogoConfirmacao, {
+  width: '400px',
+  data: {
+    titulo: 'Confirmar Exclusão',
+    mensagem: 'Tem certeza que deseja excluir este prato?',
+    textoConfirmar: 'Excluir',
+    textoCancelar: 'Manter'
+  }
+  });
+  dialogRef.afterClosed().subscribe(confirmado => {
+      if (confirmado) {
+      this.pratoService.deletar(id).subscribe({
+        next: () => {
+          this.snackBar.open('Prato removido com sucesso!', 'OK', { duration: 2000 });
+          this.carregarPratos();
+        },
+        error: (err) => {
+          const mensagemDoBack = err.error?.message || 'Erro desconhecido ao excluir';
+          this.dialog.open(DialogoConfirmacao, {
+            width: '400px',
+            data: {
+              titulo: 'Não é possível excluir',
+              mensagem: mensagemDoBack,
+              textoConfirmar: 'Entendido',
+              textoCancelar: ''
+            }
+          });
+        }
       });
     }
-  }
+  });
+}
   limparForm() {
     this.prato = {
       id: undefined,
@@ -230,5 +256,7 @@ private enviarDadosParaBackend() {
     const insumo = this.insumosDisponiveis().find((i) => i.id === id);
     return insumo ? insumo.unidadeMedida : '';
   }
-
+  voltar() {
+    this.location.back();
+  }
 }

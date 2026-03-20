@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
@@ -18,10 +18,11 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './kpi.html',
   styleUrl: './kpi.scss'
 })
-export class KpiComponent implements OnInit { // Renomeado para KpiComponent para não conflitar com a Interface
+export class KpiComponent implements OnInit {
   private kpiService = inject(KpiService);
+  private location = inject(Location);
+
   carregando = signal(false);
-  // Alterado o nome para 'dadosKpi' para clareza
   dadosKpi = signal<KpiData | null>(null);
 
   ngOnInit(): void {
@@ -43,5 +44,8 @@ carregarDados() {
   get statusFormatados() {
     const status = this.dadosKpi()?.pedidosPorStatus;
     return status ? Object.entries(status) : [];
+  }
+  voltar() {
+    this.location.back();
   }
 }

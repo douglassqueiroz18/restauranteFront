@@ -1,6 +1,6 @@
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EstoqueService } from '../../services/estoque-service';
 import { Estoque } from '../../models/estoque.model';
@@ -61,7 +61,8 @@ export class EstoqueComponent implements OnInit {
   constructor(private service: EstoqueService,
               private fb: FormBuilder,
               private cdr: ChangeDetectorRef,
-              private dialog: MatDialog
+              private dialog: MatDialog,
+              private location: Location
               ) {
     this.estoqueForm = this.fb.group({
       nome: ['', Validators.required],
@@ -136,4 +137,7 @@ abrirEdicao(insumo: Estoque) {
   isCritico(insumo: Estoque): boolean {
     return insumo.quantidadeAtual <= insumo.estoqueSeguranca;
   }
-} // <--- A chave extra estava aqui embaixo, agora está correto.
+  voltar() {
+    this.location.back();
+  }
+}

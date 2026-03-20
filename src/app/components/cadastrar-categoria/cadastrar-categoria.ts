@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,6 +32,7 @@ export class CadastrarCategoria implements OnInit {
   private categoriaService = inject(CategoriaService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
+  private location = inject(Location);
 
   categorias = signal<Categoria[]>([]);
   dataSource = new MatTableDataSource<Categoria>([]);
@@ -89,5 +90,8 @@ export class CadastrarCategoria implements OnInit {
 
   limparForm() {
     this.categoria = { nome: '', descricao: '' };
+  }
+  voltar() {
+    this.location.back();
   }
 }

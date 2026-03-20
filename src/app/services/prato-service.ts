@@ -39,7 +39,6 @@ export class PratoService {
   }
 
   atualizar(id: number, prato: Prato): Observable<Prato> {
-    console.log('debugando o atualizar: ', prato.fotoUrl);
     return this.http.put<Prato>(`${this.API}/${id}`, prato);
   }
 
